@@ -831,32 +831,10 @@
     <!-- /.sidebar -->
   </aside>
 
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <div class="container-fluid">
-        <div class="row mb-2">
-          <div class="col-sm-6">
-            <h1>Fixed Layout</h1>
-          </div>
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item"><a href="#">Layout</a></li>
-              <li class="breadcrumb-item active">Fixed Layout</li>
-            </ol>
-          </div>
-        </div>
-      </div><!-- /.container-fluid -->
-    </section>
-
-    <!-- Main content -->
-    <div layout:fragment="content">
-    </div>
-    <!-- /.content -->
+  <!-- Main content -->
+  <div layout:fragment="content">
   </div>
-  <!-- /.content-wrapper -->
+  <!-- /.content -->
 
   <footer class="main-footer" >
     <div class="float-right d-none d-sm-block">
@@ -881,7 +859,39 @@
 <script src="/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 <!-- AdminLTE App -->
 <script src="/dist/js/adminlte.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="/dist/js/demo.js"></script>
+
+<script>
+  // Obtém o token armazenado do localStorage
+  var token = localStorage.getItem('token');
+
+  // Verifica se o token está presente
+  if (token) {
+    // Define uma função para atualizar o token
+    function refreshToken() {
+      // Faz uma solicitação para renovar o token
+      axios.post('https://luxrest.lusohost.pt:8443/api/v1/auth/authenticate', { token: token })
+              .then(function (response) {
+                console.log('Token atualizado: ', response.data.token);
+
+                // Atualiza o token armazenado
+                token = response.data.token;
+                localStorage.setItem('token', token);
+              })
+              .catch(function (error) {
+                console.log('Erro ao atualizar o token: ', error);
+                //window.location.href = '/login';
+              });
+    }
+
+    // Atualiza o token a cada minuto (60000 milissegundos)
+    setInterval(refreshToken, 60000);
+  } else {
+    console.log('Token não encontrado. Redirecionando para a página de login...');
+    // Redireciona o usuário para a página de login
+    //window.location.href = '/login';
+  }
+
+</script>
+
 </body>
 </html>
