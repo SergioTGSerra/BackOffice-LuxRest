@@ -16,7 +16,7 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>Categories</h1>
+                        <h1>Taxes</h1>
                     </div>
                 </div>
             </div><!-- /.container-fluid -->
@@ -30,7 +30,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="text-right">
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add">Add Category</button>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add">Add tax</button>
                                 </div>
                             </div>
                             <!-- /.card-header -->
@@ -39,9 +39,7 @@
                                     <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Active</th>
-                                        <th>Created At</th>
+                                        <th>Value</th>
                                         <th>Actions</th>
                                     </tr>
                                     </thead>
@@ -51,9 +49,7 @@
                                     <tfoot>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Active</th>
-                                        <th>Created At</th>
+                                        <th>Value</th>
                                         <th>Actions</th>
                                     </tr>
                                     </tfoot>
@@ -78,7 +74,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Add Category</h4>
+                    <h4 class="modal-title">Add Tax</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -90,14 +86,14 @@
                             <input type="text" class="form-control" id="name">
                         </div>
                         <div class="form-group">
-                            <label for="desc">Description:</label>
-                            <input type="text" class="form-control" id="desc">
+                            <label for="value">Value:</label>
+                            <input type="number" step="0.01" class="form-control" id="value">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="addCategoryButton" type="button" class="btn btn-primary">Add Category </button>
+                    <button id="addTaxButton" type="button" class="btn btn-primary">Add Tax</button>
                 </div>
             </div>
             <!-- /.modal-content -->
@@ -112,7 +108,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Edit Category</h4>
+                    <h4 class="modal-title">Edit Tax</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -123,17 +119,15 @@
                         <div class="form-group">
                             <label for="nameedit">Name:</label>
                             <input type="text" class="form-control" id="nameedit" disabled>
-                            <label for="descedit">Description:</label>
-                            <input type="text" class="form-control" id="descedit">
-                            <label for="activeedit">Active:</label>
-                            <input type="checkbox" class="form-control" id="activeedit">
-                            <input id="idCat" hidden="">
+                            <label for="valuedit">Value:</label>
+                            <input type="text" class="form-control" id="valuedit">
+                            <input id="idTax" hidden="">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="editCategoryButton" type="button" class="btn btn-primary">Edit Category </button>
+                    <button id="editTaxButton" type="button" class="btn btn-primary">Edit Tax </button>
                 </div>
             </div>
             <!-- /.modal-content -->
@@ -150,29 +144,25 @@
             const tbody = table.getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
 
-            data.forEach(function (category) {
+            data.forEach(function (tax) {
                 const row = tbody.insertRow();
                 const nameCell = row.insertCell();
-                const descriptionCell = row.insertCell();
-                const activeCell = row.insertCell();
-                const createdAtCell = row.insertCell();
+                const valueCell = row.insertCell();
                 const actionsCell = row.insertCell();
 
-                nameCell.innerHTML = category.name;
-                descriptionCell.innerHTML = category.description;
-                activeCell.innerHTML = category.isActive ? 'Active' : 'Inactive';
-                createdAtCell.innerHTML = new Date(category.createdAt).toLocaleString();
+                nameCell.innerHTML = tax.name;
+                valueCell.innerHTML = tax.value;
 
                 // Botão para abrir a modal de edição
-                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + category.id + ', \'' + category.description + '\', \'' + category.name + '\')">Edit</button>';
+                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + tax.id + ', \'' + tax.value + '\', \'' + tax.name + '\')">Edit</button>';
                 // Botão para abrir a modal de remoção
-                actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteCategory(' + category.id + ')">Delete</button>';
+                actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteTax(' + tax.id + ')">Delete</button>';
             });
         }
 
         // Função para fazer a requisição e preencher a tabela
         function fetchData() {
-            axios.get('https://luxrest.lusohost.pt:8443/api/v1/categories', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+            axios.get('https://luxrest.lusohost.pt:8443/api/v1/taxes', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
                 .then(function (response) {
                     const data = response.data;
                     fillTable(data);
@@ -185,15 +175,15 @@
         // Chamar a função fetchData após a página ser carregada
         document.addEventListener('DOMContentLoaded', fetchData);
 
-        function deleteCategory(categoryId) {
+        function deleteTax(taxId) {
             if (confirm("Want to delete the category?")) {
-                axios.delete('https://luxrest.lusohost.pt:8443/api/v1/categories/' + categoryId, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                axios.delete('https://luxrest.lusohost.pt:8443/api/v1/taxes/' + taxId, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
                     .then(response => {
-                        console.log('Category deleted successfully');
+                        console.log('Tax deleted successfully');
                         fetchData()
                     })
                     .catch(error => {
-                        console.error('Error deleting category:', error);
+                        console.error('Error deleting tax:', error);
                         alert(error.response.data.details)
                     });
             }else{
@@ -201,27 +191,27 @@
             }
         }
 
-        function openEditModal(categoryId, description, name) {
+        function openEditModal(taxId, value, name) {
             $('#modal-edit').modal('show');
             $('#nameedit').val(name);
-            $('#descedit').val(description);
-            $('#idCat').val(categoryId);
+            $('#valuedit').val(value);
+            $('#idTax').val(taxId);
         }
 
-        // Adiciona o manipulador de eventos ao botão "Add Category"
-        document.getElementById('addCategoryButton').addEventListener('click', function() {
+        // Adiciona o manipulador de eventos ao botão "Add tax"
+        document.getElementById('addTaxButton').addEventListener('click', function() {
             // Obtém os valores dos campos de entrada
             const name = document.getElementById('name').value;
-            const description = document.getElementById('desc').value;
+            const description = document.getElementById('value').value;
 
             // Cria o objeto de dados para enviar
             const data = {
                 name: name,
-                description: description
+                value: description
             };
 
             // Envia a solicitação Axios
-            axios.post('https://luxrest.lusohost.pt:8443/api/v1/categories', data, {
+            axios.post('https://luxrest.lusohost.pt:8443/api/v1/taxes', data, {
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                     'Content-Type': 'application/json'
@@ -229,7 +219,7 @@
             })
                 .then(function (response) {
                     // Lógica para lidar com a resposta de sucesso
-                    console.log('Category added successfully:', response.data);
+                    console.log('Tax added successfully:', response.data);
                     // Fecha a modal
                     $('#modal-xl').modal('hide');
                     // Atualiza a tabela para exibir a nova categoria
@@ -237,29 +227,27 @@
                 })
                 .catch(function (error) {
                     // Lógica para lidar com erros
-                    console.error('Error adding category:', error);
+                    console.error('Error adding tax:', error);
                 });
         });
 
         // Adiciona o manipulador de eventos ao botão "Edit Category"
-        document.getElementById('editCategoryButton').addEventListener('click', function() {
+        document.getElementById('editTaxButton').addEventListener('click', function() {
             // Obtém o valor atualizado do campo de entrada da descrição na modal
-            const newDescription = document.getElementById('descedit').value;
+            const value = document.getElementById('valuedit').value;
             const name = document.getElementById('nameedit').value;
-            const active = document.getElementById('activeedit').checked;
 
             // Cria o objeto de dados para enviar
             const data = {
                 name: name,
-                description: newDescription,
-                isActive: active
+                value: value,
             };
 
-            // Obtém o ID da categoria da modal (você precisa ter um elemento HTML na modal para armazenar o ID da categoria)
-            const categoryId = document.getElementById('idCat').value;
+            // Obtém o ID da tax da modal (você precisa ter um elemento HTML na modal para armazenar o ID da tax)
+            const taxId = document.getElementById('idTax').value;
 
-            // Envia a solicitação Axios para atualizar a descrição da categoria
-            axios.put('https://luxrest.lusohost.pt:8443/api/v1/categories/' + categoryId, data, {
+            // Envia a solicitação Axios para atualizar a value da tax
+            axios.put('https://luxrest.lusohost.pt:8443/api/v1/taxes/' + taxId, data, {
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                     'Content-Type': 'application/json'
@@ -267,7 +255,7 @@
             })
                 .then(function (response) {
                     // Lógica para lidar com a resposta de sucesso
-                    console.log('Category updated successfully:', response.data);
+                    console.log('Tax updated successfully:', response.data);
                     // Fecha a modal
                     $('#modal-edit').modal('hide');
                     // Atualiza a tabela para exibir a categoria atualizada
@@ -275,7 +263,7 @@
                 })
                 .catch(function (error) {
                     // Lógica para lidar com erros
-                    console.error('Error updating category:', error);
+                    console.error('Error updating tax:', error);
                 });
         });
 

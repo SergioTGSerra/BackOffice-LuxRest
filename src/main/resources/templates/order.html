@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+
+<body>
+
+<div layout:fragment="content">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>Orders</h1>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="table" class="table table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Order Note</th>
+                                        <th>Amount</th>
+                                        <th>Order Status</th>
+                                        <th>Payment Method</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <!-- Table rows dynamically generated using JavaScript -->
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th>Order Note</th>
+                                        <th>Amount</th>
+                                        <th>Order Status</th>
+                                        <th>Payment Method</th>
+                                        <th>Created At</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+        </section>
+        <!-- /.content -->
+    </div>
+
+
+    <!-- /.modal -->
+
+    <div class="modal fade" id="modal-edit">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Order Details</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <h5>Order Information</h5>
+                            <p><strong>Order ID:</strong> <span id="orderId"></span></p>
+                            <p><strong>Amount:</strong> <span id="orderAmount"></span></p>
+                            <p><strong>Order Note:</strong> <span id="orderNote"></span></p>
+                            <p><strong>Order Status:</strong> <span id="orderStatus"></span></p>
+                            <p><strong>Payment Method:</strong> <span id="paymentMethod"></span></p>
+                            <p><strong>Created At:</strong> <span id="createdAt"></span></p>
+                        </div>
+                        <div class="col-12">
+                            <h5>Products</h5>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Tax</th>
+                                    <th>Image</th>
+                                </tr>
+                                </thead>
+                                <tbody id="productTableBody">
+                                <!-- Product rows will be inserted here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
+
+
+    <script>
+        // Função para preencher a tabela com os dados
+        function fillTable(data) {
+            const table = document.getElementById('table');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+
+            data.forEach(function (order) {
+                const row = tbody.insertRow();
+                const orderNoteCell = row.insertCell();
+                const amountCell = row.insertCell();
+                const orderStatusCell = row.insertCell();
+                const paymentMethodsCell = row.insertCell();
+                const createdAtCell = row.insertCell();
+                const actionsCell = row.insertCell();
+
+                orderNoteCell.innerHTML = order.orderNote;
+                amountCell.innerHTML = order.amount;
+                orderStatusCell.innerHTML = order.orderStatus;
+                paymentMethodsCell.innerHTML = order.paymentMethod;
+                createdAtCell.innerHTML = order.createdAt;
+
+                // Botão para abrir a modal de edição
+                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openShowMore(' + order.id + ')">Show Products</button>';
+            });
+        }
+
+        // Função para fazer a requisição e preencher a tabela
+        function fetchData() {
+            axios.get('https://luxrest.lusohost.pt:8443/api/v1/orders', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                .then(function (response) {
+                    const data = response.data;
+                    fillTable(data);
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Chamar a função fetchData após a página ser carregada
+        document.addEventListener('DOMContentLoaded', fetchData);
+
+        function openShowMore(orderId) {
+            $('#modal-edit').modal('show');
+            $('#nameedit').val(name);
+            $('#valuedit').val(value);
+            $('#idTax').val(taxId);
+        }
+
+    </script>
+
+
+    <script>
+        // Função para preencher a tabela de produtos
+        function fillProductTable(orderLine) {
+            const productTableBody = document.getElementById('productTableBody');
+            productTableBody.innerHTML = '';
+
+            orderLine.forEach(function (product) {
+                const row = productTableBody.insertRow();
+                const productNameCell = row.insertCell();
+                const quantityCell = row.insertCell();
+                const priceCell = row.insertCell();
+                const taxCell = row.insertCell();
+                const imageCell = row.insertCell();
+
+                // Fazer requisição para obter informações do produto
+                axios.get('https://luxrest.lusohost.pt:8443/api/v1/products/' + product.product, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(function (response) {
+                        const productData = response.data;
+                        productNameCell.innerHTML = productData.name;
+                        quantityCell.innerHTML = product.quantity;
+                        priceCell.innerHTML = product.price;
+                        taxCell.innerHTML = product.tax;
+                        imageCell.innerHTML = '<img src="data:image;base64,' + productData.image + '" alt="Product Image" style="width: 50px;">';
+                    })
+                    .catch(function (error) {
+                        console.error('Error:', error);
+                    });
+            });
+        }
+
+        function openShowMore(orderId) {
+            axios.get('https://luxrest.lusohost.pt:8443/api/v1/orders/' + orderId, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                .then(function (response) {
+                    const order = response.data;
+                    const modal = $('#modal-edit');
+
+                    // Preencher informações da ordem
+                    modal.find('#orderId').text(order.id);
+                    modal.find('#orderAmount').text(order.amount);
+                    modal.find('#orderNote').text(order.orderNote);
+                    modal.find('#orderStatus').text(order.orderStatus);
+                    modal.find('#paymentMethod').text(order.paymentMethod);
+                    modal.find('#createdAt').text(order.createdAt);
+
+                    // Preencher tabela de produtos
+                    fillProductTable(order.orderLine);
+
+                    // Abrir modal
+                    modal.modal('show');
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+
+
+    <!-- DataTables  & Plugins -->
+    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+    <!-- Page specific script -->
+    <script>
+        $(function () {
+            $('#table').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": false,
+                "info": false,
+                "autoWidth": false,
+                "responsive": true
+            });
+        });
+    </script>
+
+
+</div>
+
+</body>
+</html>

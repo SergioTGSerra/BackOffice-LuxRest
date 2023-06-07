@@ -16,13 +16,12 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>Categories</h1>
+                        <h1>Taxes</h1>
                     </div>
                 </div>
             </div><!-- /.container-fluid -->
         </section>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
@@ -30,7 +29,7 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="text-right">
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add">Add Category</button>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add">Add Expense</button>
                                 </div>
                             </div>
                             <!-- /.card-header -->
@@ -38,10 +37,8 @@
                                 <table id="table" class="table table-bordered table-hover">
                                     <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Active</th>
-                                        <th>Created At</th>
+                                        <th>Note</th>
+                                        <th>Amount</th>
                                         <th>Actions</th>
                                     </tr>
                                     </thead>
@@ -50,10 +47,8 @@
                                     </tbody>
                                     <tfoot>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Description</th>
-                                        <th>Active</th>
-                                        <th>Created At</th>
+                                        <th>Note</th>
+                                        <th>Amount</th>
                                         <th>Actions</th>
                                     </tr>
                                     </tfoot>
@@ -78,7 +73,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Add Category</h4>
+                    <h4 class="modal-title">Add Expense</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -86,18 +81,18 @@
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="name">Name:</label>
-                            <input type="text" class="form-control" id="name">
+                            <label for="note">Note:</label>
+                            <input type="text" class="form-control" id="note">
                         </div>
                         <div class="form-group">
-                            <label for="desc">Description:</label>
-                            <input type="text" class="form-control" id="desc">
+                            <label for="amount">Amount:</label>
+                            <input type="number" step="0.01" class="form-control" id="amount">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="addCategoryButton" type="button" class="btn btn-primary">Add Category </button>
+                    <button id="addExpenseButton" type="button" class="btn btn-primary">Add Expense</button>
                 </div>
             </div>
             <!-- /.modal-content -->
@@ -112,28 +107,25 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Edit Category</h4>
+                    <h4 class="modal-title">Edit Expense</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form>
-
                         <div class="form-group">
-                            <label for="nameedit">Name:</label>
-                            <input type="text" class="form-control" id="nameedit" disabled>
-                            <label for="descedit">Description:</label>
-                            <input type="text" class="form-control" id="descedit">
-                            <label for="activeedit">Active:</label>
-                            <input type="checkbox" class="form-control" id="activeedit">
-                            <input id="idCat" hidden="">
+                            <label for="noteedit">Note:</label>
+                            <input type="text" class="form-control" id="noteedit" disabled>
+                            <label for="amountedit">Amount:</label>
+                            <input type="text" class="form-control" id="amountedit">
+                            <input id="idExpense" hidden="">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button id="editCategoryButton" type="button" class="btn btn-primary">Edit Category </button>
+                    <button id="editExpenseButton" type="button" class="btn btn-primary">Edit Expense</button>
                 </div>
             </div>
             <!-- /.modal-content -->
@@ -150,29 +142,25 @@
             const tbody = table.getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
 
-            data.forEach(function (category) {
+            data.forEach(function (expense) {
                 const row = tbody.insertRow();
-                const nameCell = row.insertCell();
-                const descriptionCell = row.insertCell();
-                const activeCell = row.insertCell();
-                const createdAtCell = row.insertCell();
+                const noteCell = row.insertCell();
+                const amountCell = row.insertCell();
                 const actionsCell = row.insertCell();
 
-                nameCell.innerHTML = category.name;
-                descriptionCell.innerHTML = category.description;
-                activeCell.innerHTML = category.isActive ? 'Active' : 'Inactive';
-                createdAtCell.innerHTML = new Date(category.createdAt).toLocaleString();
+                noteCell.innerHTML = expense.note;
+                amountCell.innerHTML = expense.amount;
 
                 // Botão para abrir a modal de edição
-                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + category.id + ', \'' + category.description + '\', \'' + category.name + '\')">Edit</button>';
+                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + expense.id + ', \'' + expense.amount + '\', \'' + expense.note + '\')">Edit</button>';
                 // Botão para abrir a modal de remoção
-                actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteCategory(' + category.id + ')">Delete</button>';
+                actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteExpense(' + expense.id + ')">Delete</button>';
             });
         }
 
         // Função para fazer a requisição e preencher a tabela
         function fetchData() {
-            axios.get('https://luxrest.lusohost.pt:8443/api/v1/categories', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+            axios.get('https://luxrest.lusohost.pt:8443/api/v1/expenses', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
                 .then(function (response) {
                     const data = response.data;
                     fillTable(data);
@@ -185,43 +173,43 @@
         // Chamar a função fetchData após a página ser carregada
         document.addEventListener('DOMContentLoaded', fetchData);
 
-        function deleteCategory(categoryId) {
-            if (confirm("Want to delete the category?")) {
-                axios.delete('https://luxrest.lusohost.pt:8443/api/v1/categories/' + categoryId, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+        function deleteExpense(expenseId) {
+            if (confirm("Want to delete the expense?")) {
+                axios.delete('https://luxrest.lusohost.pt:8443/api/v1/expenses/' + expenseId, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
                     .then(response => {
-                        console.log('Category deleted successfully');
-                        fetchData()
+                        console.log('Expense deleted successfully');
+                        fetchData();
                     })
                     .catch(error => {
-                        console.error('Error deleting category:', error);
-                        alert(error.response.data.details)
+                        console.error('Error deleting expense:', error);
+                        alert(error.response.data.details);
                     });
-            }else{
-                console.log("erro")
+            } else {
+                console.log("Error");
             }
         }
 
-        function openEditModal(categoryId, description, name) {
+        function openEditModal(expenseId, amount, note) {
             $('#modal-edit').modal('show');
-            $('#nameedit').val(name);
-            $('#descedit').val(description);
-            $('#idCat').val(categoryId);
+            $('#noteedit').val(note);
+            $('#amountedit').val(amount);
+            $('#idExpense').val(expenseId);
         }
 
-        // Adiciona o manipulador de eventos ao botão "Add Category"
-        document.getElementById('addCategoryButton').addEventListener('click', function() {
+        // Adiciona o manipulador de eventos ao botão "Add Expense"
+        document.getElementById('addExpenseButton').addEventListener('click', function () {
             // Obtém os valores dos campos de entrada
-            const name = document.getElementById('name').value;
-            const description = document.getElementById('desc').value;
+            const note = document.getElementById('note').value;
+            const amount = document.getElementById('amount').value;
 
             // Cria o objeto de dados para enviar
             const data = {
-                name: name,
-                description: description
+                note: note,
+                amount: amount
             };
 
             // Envia a solicitação Axios
-            axios.post('https://luxrest.lusohost.pt:8443/api/v1/categories', data, {
+            axios.post('https://luxrest.lusohost.pt:8443/api/v1/expenses', data, {
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                     'Content-Type': 'application/json'
@@ -229,37 +217,35 @@
             })
                 .then(function (response) {
                     // Lógica para lidar com a resposta de sucesso
-                    console.log('Category added successfully:', response.data);
+                    console.log('Expense added successfully:', response.data);
                     // Fecha a modal
-                    $('#modal-xl').modal('hide');
-                    // Atualiza a tabela para exibir a nova categoria
+                    $('#modal-add').modal('hide');
+                    // Atualiza a tabela para exibir a nova despesa
                     fetchData();
                 })
                 .catch(function (error) {
                     // Lógica para lidar com erros
-                    console.error('Error adding category:', error);
+                    console.error('Error adding expense:', error);
                 });
         });
 
-        // Adiciona o manipulador de eventos ao botão "Edit Category"
-        document.getElementById('editCategoryButton').addEventListener('click', function() {
+        // Adiciona o manipulador de eventos ao botão "Edit Expense"
+        document.getElementById('editExpenseButton').addEventListener('click', function () {
             // Obtém o valor atualizado do campo de entrada da descrição na modal
-            const newDescription = document.getElementById('descedit').value;
-            const name = document.getElementById('nameedit').value;
-            const active = document.getElementById('activeedit').checked;
+            const amount = document.getElementById('amountedit').value;
+            const note = document.getElementById('noteedit').value;
 
             // Cria o objeto de dados para enviar
             const data = {
-                name: name,
-                description: newDescription,
-                isActive: active
+                note: note,
+                amount: amount,
             };
 
-            // Obtém o ID da categoria da modal (você precisa ter um elemento HTML na modal para armazenar o ID da categoria)
-            const categoryId = document.getElementById('idCat').value;
+            // Obtém o ID da despesa da modal (você precisa ter um elemento HTML na modal para armazenar o ID da despesa)
+            const expenseId = document.getElementById('idExpense').value;
 
-            // Envia a solicitação Axios para atualizar a descrição da categoria
-            axios.put('https://luxrest.lusohost.pt:8443/api/v1/categories/' + categoryId, data, {
+            // Envia a solicitação Axios para atualizar o valor da despesa
+            axios.put('https://luxrest.lusohost.pt:8443/api/v1/expenses/' + expenseId, data, {
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                     'Content-Type': 'application/json'
@@ -267,18 +253,17 @@
             })
                 .then(function (response) {
                     // Lógica para lidar com a resposta de sucesso
-                    console.log('Category updated successfully:', response.data);
+                    console.log('Expense updated successfully:', response.data);
                     // Fecha a modal
                     $('#modal-edit').modal('hide');
-                    // Atualiza a tabela para exibir a categoria atualizada
+                    // Atualiza a tabela para exibir a despesa atualizada
                     fetchData();
                 })
                 .catch(function (error) {
                     // Lógica para lidar com erros
-                    console.error('Error updating category:', error);
+                    console.error('Error updating expense:', error);
                 });
         });
-
     </script>
 
 

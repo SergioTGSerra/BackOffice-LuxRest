@@ -24,4 +24,24 @@ public class Routes {
     public String category(){
         return "category";
     }
+
+    @GetMapping("/tax")
+    public String tax(){
+        return "tax";
+    }
+
+    @GetMapping("/product")
+    public String product(){
+        return "product";
+    }
+
+    @GetMapping("/orders")
+    public String order(){
+        return "order";
+    }
+
+    @GetMapping("/expense")
+    public String expense(){
+        return "expense";
+    }
 }

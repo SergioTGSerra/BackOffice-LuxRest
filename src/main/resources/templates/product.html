@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+
+<body>
+
+<div layout:fragment="content">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>Products</h1>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="text-right">
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-add">Add Product</button>
+                                </div>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="table" class="table table-bordered table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                        <th>Active</th>
+                                        <th>Category</th>
+                                        <th>Tax</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <!-- Table rows dynamically generated using JavaScript -->
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <th>Image</th>
+                                        <th>Name</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                        <th>Active</th>
+                                        <th>Category</th>
+                                        <th>Tax</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                    <!-- /.col -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+        </section>
+        <!-- /.content -->
+    </div>
+
+    <!-- /.modal -->
+
+    <div class="modal fade" id="modal-add">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Product</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control" id="name">
+                        </div>
+                        <div>
+                            <img id="imagePreview" src="#" alt="Preview" style="max-width: 200px; display: none;">
+                            <label for="image">Image:</label>
+                            <input type="file" class="form-control-file" id="image">
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price:</label>
+                            <input type="number" step="0.01" class="form-control" id="price">
+                        </div>
+                        <div class="form-group">
+                            <label for="categorySelect">Category:</label>
+                            <select class="form-select" id="categorySelect" aria-label="Tax select">
+                                <option selected disabled>Select a Category</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taxSelect">Tax:</label>
+                            <select class="form-select" id="taxSelect" aria-label="Tax select">
+                                <option selected disabled>Select a tax</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="stock">Stock:</label>
+                            <input type="number" step="0.01" class="form-control" id="stock">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="addProductButton" type="button" class="btn btn-primary">Add Product</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+
+        <script>
+            document.getElementById('image').addEventListener('change', function (e) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('imagePreview').src = event.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            });
+        </script>
+        <script>
+            function fetchTaxes() {
+                axios.get('https://luxrest.lusohost.pt:8443/api/v1/taxes', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(function (response) {
+                        const taxes = response.data; // Supondo que a resposta contém as taxas disponíveis
+
+                        // Preencha o elemento select com as opções das taxas
+                        const selectElement = document.getElementById('taxSelect');
+                        selectElement.innerHTML = '';
+
+                        taxes.forEach(function (tax) {
+                            const option = document.createElement('option');
+                            option.value = tax.id;
+                            option.textContent = tax.name;
+                            selectElement.appendChild(option);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error('Erro ao obter as taxas:', error);
+                    });
+            }
+
+            function fetchCategories() {
+                axios.get('https://luxrest.lusohost.pt:8443/api/v1/categories', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(function (response) {
+                        const taxes = response.data; // Supondo que a resposta contém as taxas disponíveis
+
+                        // Preencha o elemento select com as opções das taxas
+                        const selectElement = document.getElementById('categorySelect');
+                        selectElement.innerHTML = '';
+
+                        taxes.forEach(function (category) {
+                            const option = document.createElement('option');
+                            option.value = category.id;
+                            option.textContent = category.name;
+                            selectElement.appendChild(option);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error('Erro ao obter as categorias:', error);
+                    });
+            }
+
+            // Chame a função fetchTaxes para buscar as taxas ao abrir a modal
+            $('#modal-add').on('shown.bs.modal', function () {
+                fetchTaxes();
+                fetchCategories();
+            });
+
+        </script>
+    </div>
+    <!-- /.modal -->
+
+    <!-- /.modal -->
+
+    <div class="modal fade" id="modal-edit">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Edit Product</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="name">Name:</label>
+                            <input type="text" class="form-control" id="nameedit" disabled>
+                        </div>
+                        <div>
+                            <img id="imagePreviewedit" src="#" alt="Preview" style="max-width: 200px; display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label for="priceedit">Price:</label>
+                            <input type="number" step="0.01" class="form-control" id="priceedit">
+                        </div>
+                        <div class="form-group">
+                            <label for="categorySelect">Category:</label>
+                            <select class="form-select" id="categorySelectedit" aria-label="Tax select">
+                                <option selected disabled>Select a Category</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taxSelectedit">Tax:</label>
+                            <select class="form-select" id="taxSelectedit" aria-label="Tax select">
+                                <option selected disabled>Select a tax</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="stockedit">Stock:</label>
+                            <input type="number" step="0.01" class="form-control" id="stockedit">
+                        </div>
+                        <input id="idProduct" hidden="">
+                    </form>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="editTaxButton" type="button" class="btn btn-primary">Edit Product</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+        <script>
+            function fetchTaxes() {
+                axios.get('https://luxrest.lusohost.pt:8443/api/v1/taxes', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(function (response) {
+                        const taxes = response.data; // Supondo que a resposta contém as taxas disponíveis
+
+                        // Preencha o elemento select com as opções das taxas
+                        const selectElement = document.getElementById('taxSelectedit');
+                        selectElement.innerHTML = '';
+
+                        taxes.forEach(function (tax) {
+                            const option = document.createElement('option');
+                            option.value = tax.id;
+                            option.textContent = tax.name;
+                            selectElement.appendChild(option);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error('Erro ao obter as taxas:', error);
+                    });
+            }
+
+            function fetchCategories() {
+                axios.get('https://luxrest.lusohost.pt:8443/api/v1/categories', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(function (response) {
+                        const taxes = response.data; // Supondo que a resposta contém as taxas disponíveis
+
+                        // Preencha o elemento select com as opções das taxas
+                        const selectElement = document.getElementById('categorySelectedit');
+                        selectElement.innerHTML = '';
+
+                        taxes.forEach(function (category) {
+                            const option = document.createElement('option');
+                            option.value = category.id;
+                            option.textContent = category.name;
+                            selectElement.appendChild(option);
+                        });
+                    })
+                    .catch(function (error) {
+                        console.error('Erro ao obter as categorias:', error);
+                    });
+            }
+
+            // Chame a função fetchTaxes para buscar as taxas ao abrir a modal
+            $('#modal-edit').on('shown.bs.modal', function () {
+                fetchTaxes();
+                fetchCategories();
+            });
+
+        </script>
+    </div>
+    <!-- /.modal -->
+
+
+    <script>
+        // Função para preencher a tabela com os dados
+        function fillTable(data) {
+            const table = document.getElementById('table');
+            const tbody = table.getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+
+            data.forEach(function (product) {
+                const row = tbody.insertRow();
+                const imageCell = row.insertCell();
+                const nameCell = row.insertCell();
+                const priceCell = row.insertCell();
+                const stockCell = row.insertCell();
+                const activeCell = row.insertCell();
+                const categoryCell = row.insertCell();
+                const taxCell = row.insertCell();
+                const actionsCell = row.insertCell();
+
+                // Imagem
+                imageCell.innerHTML = '<img src="data:image/jpeg;base64,' + product.image + '" alt="Product Image" style="max-width: 50px;">';
+                // Nome
+                nameCell.innerHTML = product.name;
+                // Preço
+                priceCell.innerHTML = product.price;
+
+                axios.get('https://luxrest.lusohost.pt:8443/api/v1/taxes/' + product.tax, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(function (response) {
+                        taxCell.innerHTML = response.data.name;
+                    })
+                    .catch(function (error) {
+                        console.error('Error:', error);
+                    });
+
+                axios.get('https://luxrest.lusohost.pt:8443/api/v1/categories/' + product.category, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(function (response) {
+                        categoryCell.innerHTML = response.data.name;
+                    })
+                    .catch(function (error) {
+                        console.error('Error:', error);
+                    });
+
+                // Estoque
+                stockCell.innerHTML = product.stock;
+                // Ativo
+                activeCell.innerHTML = product.isActive ? 'Active' : 'Inactive';
+
+                // Botão para abrir a modal de edição
+                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + product.id + ', \'' + product.price + '\', \'' + product.name + '\','+ product.stock + ')">Edit</button>';
+                // Botão para abrir a modal de remoção
+                actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteProduct(' + product.id + ')">Delete</button>';
+            });
+        }
+
+        // Função para fazer a requisição e preencher a tabela
+        function fetchData() {
+            axios.get('https://luxrest.lusohost.pt:8443/api/v1/products', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                .then(function (response) {
+                    const data = response.data;
+                    fillTable(data);
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        }
+
+        // Chamar a função fetchData após a página ser carregada
+        document.addEventListener('DOMContentLoaded', fetchData);
+
+        function deleteProduct(productId) {
+            if (confirm("Want to delete the product?")) {
+                axios.delete('https://luxrest.lusohost.pt:8443/api/v1/products/' + productId, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } })
+                    .then(response => {
+                        console.log('Product deleted successfully');
+                        fetchData()
+                    })
+                    .catch(error => {
+                        console.error('Error deleting product:', error);
+                        // Lógica para lidar com erros durante a exclusão da categoria
+                    });
+            }
+        }
+
+        function openEditModal(productId, price, name, stock) {
+            $('#modal-edit').modal('show');
+            $('#nameedit').val(name);
+            $('#priceedit').val(price);
+            $('#stockedit').val(stock);
+            $('#idProduct').val(productId);
+        }
+
+        document.getElementById('addProductButton').addEventListener('click', async function () {
+            try {
+                const name = document.getElementById('name').value;
+                const price = document.getElementById('price').value;
+                const stock = document.getElementById('stock').value;
+                const category = document.getElementById('categorySelect').value;
+                const tax = document.getElementById('taxSelect').value;
+                const imageFile = document.getElementById('image').files[0];
+
+                // Criar objeto JSON com os dados
+                const jsonData = {
+                    name: name,
+                    price: price,
+                    stock: stock,
+                    category: category,
+                    tax: tax
+                };
+
+                // Converter o objeto JSON em um Blob
+                const jsonBlob = new Blob([JSON.stringify(jsonData)], { type: 'application/json' });
+
+                const formData = new FormData();
+                formData.append('json', jsonBlob);
+                formData.append('image', imageFile, imageFile.name);
+
+                const config = {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'multipart/form-data'
+                    }
+                };
+
+                const response = await axios.post('https://luxrest.lusohost.pt:8443/api/v1/products', formData, config);
+
+                console.log('Product added successfully:', response.data);
+                $('#modal-add').modal('hide');
+                fetchData();
+            } catch (error) {
+                console.error('Error adding product:', error);
+            }
+        });
+
+
+
+
+        // Adiciona o manipulador de eventos ao botão "Edit Category"
+        document.getElementById('editTaxButton').addEventListener('click', function() {
+            // Obtém o valor atualizado do campo de entrada da descrição na modal
+            const price = document.getElementById('priceedit').value;
+            const category = document.getElementById('categorySelectedit').value;
+            const tax = document.getElementById('taxSelectedit').value;
+            const stock = document.getElementById('stockeditt').value;
+
+            // Cria o objeto de dados para enviar
+            const data = {
+                price: price,
+                category: category,
+                tax: tax,
+                stock: stock
+            };
+
+            // Obtém o ID da tax da modal (você precisa ter um elemento HTML na modal para armazenar o ID da tax)
+            const productId = document.getElementById('productId').value;
+
+            // Envia a solicitação Axios para atualizar a value da tax
+            axios.put('https://luxrest.lusohost.pt:8443/api/v1/products/' + productId, data, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(function (response) {
+                    // Lógica para lidar com a resposta de sucesso
+                    console.log('Product updated successfully:', response.data);
+                    // Fecha a modal
+                    $('#modal-edit').modal('hide');
+                    // Atualiza a tabela para exibir o produto
+                    fetchData();
+                })
+                .catch(function (error) {
+                    // Lógica para lidar com erros
+                    console.error('Error updating product:', error);
+                });
+        });
+
+    </script>
+
+
+    <!-- DataTables  & Plugins -->
+    <script src="/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+    <!-- Page specific script -->
+    <script>
+        $(function () {
+            $('#table').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": false,
+                "info": false,
+                "autoWidth": false,
+                "responsive": true
+            });
+        });
+    </script>
+
+
+</div>
+
+</body>
+</html>
