@@ -151,10 +151,10 @@
                 const actionsCell = row.insertCell();
 
                 nameCell.innerHTML = tax.name;
-                valueCell.innerHTML = tax.value;
+                valueCell.innerHTML = tax.value + "%";
 
                 // Botão para abrir a modal de edição
-                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + tax.id + ', \'' + tax.value + '\', \'' + tax.name + '\')">Edit</button>';
+                actionsCell.innerHTML = '<button class="btn btn-primary mr-2" onclick="openEditModal(' + tax.id + ', \'' + tax.value + '\', \'' + tax.name + '\')">Edit</button>';
                 // Botão para abrir a modal de remoção
                 actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteTax(' + tax.id + ')">Delete</button>';
             });

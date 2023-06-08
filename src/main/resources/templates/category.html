@@ -164,7 +164,7 @@
                 createdAtCell.innerHTML = new Date(category.createdAt).toLocaleString();
 
                 // Botão para abrir a modal de edição
-                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + category.id + ', \'' + category.description + '\', \'' + category.name + '\')">Edit</button>';
+                actionsCell.innerHTML = '<button class="btn btn-primary mr-2" onclick="openEditModal(' + category.id + ', \'' + category.description + '\', \'' + category.name + '\')">Edit</button>';
                 // Botão para abrir a modal de remoção
                 actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteCategory(' + category.id + ')">Delete</button>';
             });

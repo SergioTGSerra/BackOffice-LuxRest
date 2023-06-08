@@ -344,7 +344,7 @@
                 activeCell.innerHTML = product.isActive ? 'Active' : 'Inactive';
 
                 // Botão para abrir a modal de edição
-                actionsCell.innerHTML = '<button class="btn btn-primary" onclick="openEditModal(' + product.id + ', \'' + product.price + '\', \'' + product.name + '\','+ product.stock + ')">Edit</button>';
+                actionsCell.innerHTML = '<button class="btn btn-primary mr-2" onclick="openEditModal(' + product.id + ', \'' + product.price + '\', \'' + product.name + '\','+ product.stock + ')">Edit</button>';
                 // Botão para abrir a modal de remoção
                 actionsCell.innerHTML += '<button class="btn btn-danger" onclick="deleteProduct(' + product.id + ')">Delete</button>';
             });
