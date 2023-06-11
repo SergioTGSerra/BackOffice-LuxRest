@@ -32,6 +32,7 @@
 
     // Define uma função para atualizar o token
     function refreshToken() {
+      console.log("refresh-token")
       // Faz uma solicitação para renovar o token
       axios.post('https://luxrest.lusohost.pt:8443/api/v1/auth/refresh-token', null, {
         headers: {
@@ -49,8 +50,20 @@
                 window.location.href = '/login';
               });
     }
+
+    const pageAccessedByReload = (
+            (window.performance.navigation && window.performance.navigation.type === 1) ||
+            window.performance
+                    .getEntriesByType('navigation')
+                    .map((nav) => nav.type)
+                    .includes('reload')
+    );
+
+    if(pageAccessedByReload) refreshToken();
+
     // Atualiza o token a cada minuto (35000 milissegundos)
-    setInterval(refreshToken, 10000);
+    setInterval(refreshToken, 50000);
+
 
     function getUserLogged() {
       axios.post('https://luxrest.lusohost.pt:8443/api/v1/entities/logged', null, {
